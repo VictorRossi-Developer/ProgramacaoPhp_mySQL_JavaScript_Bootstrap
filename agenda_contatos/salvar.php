@@ -1,0 +1,7 @@
+<?php
+require 'config.php';
+$id=filter_input(INPUT_POST,'id',FILTER_VALIDATE_INT);$nome=trim($_POST['nome']??'');$telefone=trim($_POST['telefone']??'');$email=trim($_POST['email']??'');$endereco=trim($_POST['endereco']??'');$foto=basename($_POST['foto_atual']??'');
+if($nome===''||$telefone==='')die('Nome e telefone são obrigatórios. <a href="javascript:history.back()">Voltar</a>');
+if(isset($_FILES['foto'])&&$_FILES['foto']['error']!==UPLOAD_ERR_NO_FILE){if($_FILES['foto']['error']!==UPLOAD_ERR_OK)die('Erro ao enviar a imagem.');if($_FILES['foto']['size']>2097152)die('A imagem deve ter no máximo 2 MB.');$mime=mime_content_type($_FILES['foto']['tmp_name']);$types=['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp'];if(!isset($types[$mime]))die('Formato não permitido.');$novo=bin2hex(random_bytes(10)).'.'.$types[$mime];move_uploaded_file($_FILES['foto']['tmp_name'],__DIR__.'/uploads/'.$novo);if($foto&&file_exists(__DIR__.'/uploads/'.$foto))@unlink(__DIR__.'/uploads/'.$foto);$foto=$novo;}
+if($id){$s=$pdo->prepare('UPDATE contatos SET nome=?,telefone=?,email=?,foto=?,endereco=? WHERE id=?');$s->execute([$nome,$telefone,$email?:null,$foto?:null,$endereco?:null,$id]);$msg='Contato atualizado com sucesso!';}else{$s=$pdo->prepare('INSERT INTO contatos(nome,telefone,email,foto,endereco) VALUES(?,?,?,?,?)');$s->execute([$nome,$telefone,$email?:null,$foto?:null,$endereco?:null]);$msg='Contato adicionado com sucesso!';}
+header('Location:index.php?msg='.urlencode($msg));exit;

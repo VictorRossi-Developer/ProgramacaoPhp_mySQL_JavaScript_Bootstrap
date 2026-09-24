@@ -1,0 +1,2 @@
+<?php
+require 'config.php';$id=filter_input(INPUT_GET,'id',FILTER_VALIDATE_INT);if(!$id){header('Location:index.php?msg=Contato inválido');exit;}$s=$pdo->prepare('SELECT foto FROM contatos WHERE id=?');$s->execute([$id]);$c=$s->fetch();if($c){$s=$pdo->prepare('DELETE FROM contatos WHERE id=?');$s->execute([$id]);if($c['foto']&&file_exists(__DIR__.'/uploads/'.$c['foto']))@unlink(__DIR__.'/uploads/'.$c['foto']);}header('Location:index.php?msg='.urlencode('Contato excluído com sucesso!'));exit;
